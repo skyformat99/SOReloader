@@ -188,8 +188,11 @@ All instructions serve for runtime update. It makes you can update logic when pr
 > ```
 
 > Output:
+
 > version 1 add gold: 100 extra gold: 0
+
 > version 2 add gold: 100 extra gold: 100
+
 > version 1 add gold: 100 extra gold: 0
 
 > ## End & Notice
