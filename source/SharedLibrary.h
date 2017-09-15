@@ -2,7 +2,7 @@
 #define __SHAREDLIBRARY_H__
 
 #include <string>
-#include "Error.h"
+#include "MacroDefine.h"
 
 SORELOADER_NAMESPACE_BEGIN
 
@@ -13,14 +13,12 @@ public:
 	SharedLibrary(std::string libName);
 	~SharedLibrary();
 
-	ESOReloaderError LoadLibrary(std::string libName);
+	bool LoadLibrary(std::string libName);
 	bool IsLoadSuccess();
-	ESOReloaderError GetErrorCode();
 	void *GetFunction(std::string symbol);
 
 private:
 	void *mHandle;
-	ESOReloaderError mLoadLibraryReturnCode = EErrorNone;
 };
 
 SORELOADER_NAMESPACE_END

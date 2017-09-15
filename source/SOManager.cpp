@@ -1,6 +1,7 @@
 #include "SOManager.h"
 #include <iostream>
 #include "MacroDefine.h"
+#include "../Dependence/TinyXML/tinyxml.h"
 
 using namespace SORELOADER_NAMESPACE;
 
@@ -14,22 +15,22 @@ SOManager::~SOManager()
 
 }
 
-ESOReloaderError SOManager::Initialize(std::string configPath)
+bool SOManager::Initialize(std::string configPath)
 {
 	mConfigFilePath = configPath;
 	TiXmlDocument xmlConfig(mConfigFilePath.c_str());
 	
 	if (false == xmlConfig.LoadFile())
 	{
-		return EConfigError;
+		return false;
 	}
 	TiXmlElement* root = xmlConfig.FirstChildElement();
 	LoadPathConfig(root);
 	LoadLibraries(root);
-	return EErrorNone;
+	return true;;
 }
 
-ESOReloaderError SOManager::ReloadConfig()
+bool SOManager::ReloadConfig()
 {
 	return Initialize(mConfigFilePath);
 }
@@ -58,10 +59,12 @@ bool SOManager::LoadLibrary(std::string libraryName, std::string fileName)
 	{
 		iter = mSharedLibrarys.emplace(libraryName, std::list<SharedLibrary>()).first;
 	}
+
 	std::list<SharedLibrary> &libraryList = iter->second;
 	libraryList.push_front(SharedLibrary());
 	SharedLibrary &lib = libraryList.front();
 	bool loadSuccess = lib.LoadLibrary(fileName);
+
 	if (!loadSuccess) 
 	{ 
 		libraryList.pop_front(); 
@@ -79,29 +82,23 @@ bool SOManager::UpdateSharedLibrary(std::string library, std::string fileName)
 	return LoadLibrary(library, mLibraryFolderPath4Update + fileName);
 }
 
-ESOReloaderError SOManager::RollbackLibrary(std::string library)
+bool SOManager::RollbackLibrary(std::string library)
 {
-	ESOReloaderError result = EErrorNone;
 	auto iter = mSharedLibrarys.find(library);
-	if (iter != mSharedLibrarys.end())
+	if (iter == mSharedLibrarys.end())
 	{
-		std::list<SharedLibrary> &libraryList = iter->second;
-		uint64_t size = libraryList.size();
-		if (size > 1)
-		{
-			libraryList.pop_front();
-		}
-		else
-		{
-			result = ELibraryListSizeLessThanTwo;
-		}
-		
+		std::cout << "Can not find Library" << std::endl;
+		return false;
 	}
-	else
+	std::list<SharedLibrary> &libraryList = iter->second;
+	uint64_t size = libraryList.size();
+	if (size <= 1)
 	{
-		result = ECanNotFindLibrary;
+		std::cout << "Library List Size Less Than Two!" << std::endl;
+		return false;
 	}
-	return result;
+	libraryList.pop_front();
+	return true;
 }
 
 SharedLibrary *SOManager::GetLibrary(std::string library)

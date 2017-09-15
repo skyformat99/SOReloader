@@ -4,9 +4,11 @@
 #include <map>
 #include <list>
 #include "SharedLibrary.h"
-#include "Dependence/TinyXML/tinyxml.h"
+
+class TiXmlElement;
 
 SORELOADER_NAMESPACE_BEGIN
+
 
 class SOManager
 {
@@ -18,10 +20,10 @@ class SOManager
 public :
 	SOManager();
 	~SOManager();
-	ESOReloaderError Initialize(std::string configPath);
-	ESOReloaderError ReloadConfig();
+	bool Initialize(std::string configPath);
+	bool ReloadConfig();
 	bool UpdateSharedLibrary(std::string library, std::string fileName);
-	ESOReloaderError RollbackLibrary(std::string library);
+	bool RollbackLibrary(std::string library);
 	SharedLibrary * GetLibrary(std::string library);
 
 private :
